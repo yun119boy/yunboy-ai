@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(title="yunboy AI")
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,6 +13,7 @@ app.add_middleware(
 
 @app.get("/")
 @app.get("/api")
+@app.get("/api/index")
 def home():
     return {
         "status": "online",
@@ -20,6 +21,8 @@ def home():
     }
 
 @app.post("/chat")
+@app.post("/api/chat")
+@app.post("/api/index/chat")
 def chat(data: dict):
     return {
         "reply": "ได้รับข้อความแล้ว: " + data.get("message", "")
