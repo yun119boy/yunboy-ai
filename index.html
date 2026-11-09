@@ -1,0 +1,777 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10131b">
+  <title>yunboy AI</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg:#0b0e14;
+      --panel:#121722;
+      --panel2:#181f2c;
+      --line:#283244;
+      --text:#eef2f8;
+      --muted:#9aa7ba;
+      --accent:#8b7cff;
+      --accent2:#5bcbad;
+    }
+
+    * {
+      box-sizing:border-box;
+    }
+
+    body {
+      margin:0;
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--text);
+      font:15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    button, textarea {
+      font:inherit;
+    }
+
+    button {
+      cursor:pointer;
+    }
+
+    .app {
+      display:grid;
+      grid-template-columns:260px minmax(0,1fr);
+      min-height:100vh;
+    }
+
+    aside {
+      background:#0e121a;
+      border-right:1px solid var(--line);
+      padding:20px 15px;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:11px;
+      padding:5px 8px 15px;
+    }
+
+    .logo {
+      width:38px;
+      height:38px;
+      display:grid;
+      place-items:center;
+      border-radius:13px;
+      background:linear-gradient(135deg,#8978ff,#48c8aa);
+      color:#080b12;
+      font-weight:900;
+      font-size:19px;
+    }
+
+    .brand strong {
+      display:block;
+      font-size:17px;
+      letter-spacing:.2px;
+    }
+
+    .brand small {
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    .new-chat {
+      border:0;
+      border-radius:11px;
+      background:var(--accent);
+      color:white;
+      padding:11px 13px;
+      text-align:left;
+      font-weight:650;
+    }
+
+    .nav-label {
+      color:#728096;
+      text-transform:uppercase;
+      letter-spacing:1.2px;
+      font-size:10px;
+      padding:0 9px;
+      margin:4px 0;
+    }
+
+    .nav-item {
+      color:#c6cfdd;
+      padding:9px 10px;
+      border-radius:9px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      font-size:13px;
+    }
+
+    .nav-item.active {
+      background:var(--panel2);
+      color:white;
+    }
+
+    .history {
+      color:var(--muted);
+      font-size:12px;
+      padding:7px 10px;
+    }
+
+    .side-bottom {
+      margin-top:auto;
+      border-top:1px solid var(--line);
+      padding:14px 8px 0;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    main {
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      min-height:100vh;
+    }
+
+    header {
+      height:68px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 25px;
+      gap:12px;
+    }
+
+    .head-title {
+      font-weight:650;
+    }
+
+    .status {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .dot {
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#e0b35d;
+      box-shadow:0 0 10px #e0b35d66;
+    }
+
+    .workspace {
+      width:min(920px,100%);
+      margin:0 auto;
+      padding:35px 25px 20px;
+      flex:1;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .welcome {
+      margin:35px 0 26px;
+    }
+
+    .eyebrow {
+      color:var(--accent2);
+      font-size:12px;
+      letter-spacing:1.4px;
+      font-weight:700;
+    }
+
+    h1 {
+      font-size:clamp(28px,4vw,42px);
+      line-height:1.15;
+      margin:9px 0 10px;
+      letter-spacing:-1.1px;
+    }
+
+    .welcome p {
+      color:var(--muted);
+      margin:0;
+      max-width:600px;
+    }
+
+    .model-row {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin:4px 0 20px;
+    }
+
+    .model-label {
+      color:var(--muted);
+      font-size:12px;
+      margin-right:3px;
+    }
+
+    .model-btn {
+      background:var(--panel);
+      border:1px solid var(--line);
+      color:#cbd5e1;
+      border-radius:10px;
+      padding:9px 13px;
+      font-size:12px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
+
+    .model-btn.selected {
+      border-color:var(--accent);
+      background:#211e39;
+      color:white;
+      box-shadow:0 0 0 1px #8b7cff22 inset;
+    }
+
+    .model-mark {
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#8b7cff;
+    }
+
+    .model-btn[data-model="Gemma"] .model-mark {
+      background:#54c6a8;
+    }
+
+    .model-btn[data-model="Claude Opus"] .model-mark {
+      background:#d49b70;
+    }
+
+    .model-info {
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:13px;
+      padding:14px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+      margin-bottom:20px;
+    }
+
+    .model-info strong {
+      font-size:13px;
+    }
+
+    .model-info p {
+      color:var(--muted);
+      font-size:11px;
+      margin:3px 0 0;
+    }
+
+    .tag {
+      color:var(--accent2);
+      font-size:10px;
+      border:1px solid #28594e;
+      background:#122b27;
+      padding:4px 8px;
+      border-radius:20px;
+      white-space:nowrap;
+    }
+
+    .suggestions {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:11px;
+      margin:5px 0 25px;
+    }
+
+    .suggestion {
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+      text-align:left;
+      color:var(--text);
+      transition:.15s;
+    }
+
+    .suggestion:hover {
+      border-color:#7164c9;
+      transform:translateY(-1px);
+    }
+
+    .suggestion b {
+      display:block;
+      font-size:13px;
+      margin-bottom:4px;
+    }
+
+    .suggestion span {
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    .chat {
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      padding-bottom:20px;
+    }
+
+    .message {
+      max-width:85%;
+      border-radius:14px;
+      padding:12px 15px;
+      font-size:13px;
+      white-space:pre-wrap;
+    }
+
+    .message.user {
+      align-self:flex-end;
+      background:#302b52;
+      border:1px solid #494078;
+    }
+
+    .message.assistant {
+      align-self:flex-start;
+      background:var(--panel);
+      border:1px solid var(--line);
+    }
+
+    .message small {
+      display:block;
+      color:var(--muted);
+      font-size:10px;
+      margin-bottom:5px;
+    }
+
+    .composer-wrap {
+      position:sticky;
+      bottom:0;
+      background:linear-gradient(transparent,var(--bg) 20%);
+      padding:15px 0 10px;
+    }
+
+    .composer {
+      border:1px solid #354056;
+      background:#151b27;
+      border-radius:16px;
+      padding:11px;
+      box-shadow:0 12px 35px #0005;
+    }
+
+    textarea {
+      width:100%;
+      resize:vertical;
+      min-height:54px;
+      max-height:180px;
+      background:transparent;
+      color:var(--text);
+      border:0;
+      outline:0;
+      padding:5px 7px;
+    }
+
+    .composer-bottom {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:4px 3px 0;
+    }
+
+    .hint {
+      color:#718096;
+      font-size:10px;
+    }
+
+    .send {
+      border:0;
+      background:var(--accent);
+      color:white;
+      border-radius:10px;
+      padding:8px 16px;
+      font-weight:650;
+      font-size:12px;
+    }
+
+    .disclaimer {
+      text-align:center;
+      color:#667386;
+      font-size:10px;
+      padding:10px 0 0;
+    }
+
+    @media(max-width:760px) {
+      .app {
+        grid-template-columns:1fr;
+      }
+
+      aside {
+        display:none;
+      }
+
+      header {
+        padding:0 17px;
+      }
+
+      .workspace {
+        padding:22px 16px 15px;
+      }
+
+      .welcome {
+        margin:23px 0 20px;
+      }
+
+      .suggestions {
+        grid-template-columns:1fr;
+      }
+
+      .model-info {
+        align-items:flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <aside>
+    <div class="brand">
+      <div class="logo">y</div>
+      <div>
+        <strong>yunboy AI</strong>
+        <small>Personal AI workspace</small>
+      </div>
+    </div>
+
+    <button class="new-chat" id="newChat">
+      ＋　เริ่มแชทใหม่
+    </button>
+
+    <div>
+      <div class="nav-label">เมนูหลัก</div>
+      <div class="nav-item active">✧　แชท AI</div>
+      <div class="nav-item">◷　ประวัติแชท</div>
+      <div class="nav-item">▦　เครื่องมือ AI</div>
+      <div class="nav-item">▤　ไฟล์ของฉัน</div>
+    </div>
+
+    <div>
+      <div class="nav-label">ประวัติล่าสุด</div>
+      <div class="history">ยังไม่มีบทสนทนา</div>
+    </div>
+
+    <div class="side-bottom">
+      yunboy AI · Prototype<br>
+      พื้นที่ทดลองใช้งานส่วนตัว
+    </div>
+  </aside>
+
+  <main>
+
+    <header>
+      <div class="head-title">แชท AI</div>
+
+      <div class="status">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">โหมดทดลอง · ยังไม่เชื่อม AI</span>
+      </div>
+    </header>
+
+    <section class="workspace">
+
+      <div class="welcome" id="welcome">
+        <div class="eyebrow">YOUR AI WORKSPACE</div>
+
+        <h1>วันนี้ให้ AI ช่วยอะไรดี?</h1>
+
+        <p>
+          เลือกโมเดลที่ต้องการ แล้วเริ่มถามคำถามหรือทำงานได้จากที่เดียว
+        </p>
+      </div>
+
+      <div class="model-row">
+
+        <span class="model-label">โมเดลที่ใช้งาน</span>
+
+        <button class="model-btn selected" data-model="Qwen">
+          <span class="model-mark"></span>
+          Qwen
+        </button>
+
+        <button class="model-btn" data-model="Gemma">
+          <span class="model-mark"></span>
+          Gemma
+        </button>
+
+        <button class="model-btn" data-model="Claude Opus">
+          <span class="model-mark"></span>
+          Claude Opus
+        </button>
+
+      </div>
+
+      <div class="model-info">
+
+        <div>
+          <strong id="modelTitle">Qwen · โมเดลหลัก</strong>
+
+          <p id="modelDescription">
+            เหมาะกับการถามตอบ ช่วยเรียน สรุปเนื้อหา และเขียนโค้ด
+          </p>
+        </div>
+
+        <span class="tag" id="modelTag">GPU Cloud</span>
+
+      </div>
+
+      <div class="suggestions" id="suggestions">
+
+        <button class="suggestion"
+          data-prompt="ช่วยอธิบายบทเรียนนี้ให้เข้าใจง่าย พร้อมยกตัวอย่าง">
+
+          <b>📚 ช่วยเรื่องเรียน</b>
+          <span>อธิบายบทเรียนและทำสรุป</span>
+
+        </button>
+
+        <button class="suggestion"
+          data-prompt="ช่วยค้นคว้าหัวข้อนี้และจัดประเด็นสำคัญให้หน่อย">
+
+          <b>🔎 ค้นคว้าข้อมูล</b>
+          <span>วางโครงและจัดข้อมูลเป็นหัวข้อ</span>
+
+        </button>
+
+        <button class="suggestion"
+          data-prompt="ช่วยวางโครงงานนำเสนอ พร้อมหัวข้อแต่ละสไลด์">
+
+          <b>🖥️ ทำพรีเซนเทชัน</b>
+          <span>วางโครงสไลด์และเนื้อหา</span>
+
+        </button>
+
+        <button class="suggestion"
+          data-prompt="ช่วยตรวจโค้ดนี้และอธิบายวิธีแก้ทีละขั้นตอน">
+
+          <b>⌨️ เขียนโค้ด</b>
+          <span>ช่วยตรวจและอธิบายโค้ด</span>
+
+        </button>
+
+      </div>
+
+      <div class="chat" id="chat"></div>
+
+      <div class="composer-wrap">
+
+        <div class="composer">
+
+          <textarea
+            id="prompt"
+            rows="2"
+            placeholder="พิมพ์ข้อความถึง yunboy AI..."
+          ></textarea>
+
+          <div class="composer-bottom">
+
+            <span class="hint">
+              เลือกโมเดลได้จากด้านบน
+            </span>
+
+            <button class="send" id="sendButton">
+              ส่งข้อความ　↑
+            </button>
+
+          </div>
+
+        </div>
+
+        <div class="disclaimer">
+          คำตอบในหน้านี้เป็นข้อความตัวอย่าง ยังไม่ได้เชื่อมต่อบริการ AI จริง
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+<script>
+
+  const modelConfig = {
+
+    "Qwen": {
+      title: "Qwen · โมเดลหลัก",
+      description: "เหมาะกับการถามตอบ ช่วยเรียน สรุปเนื้อหา และเขียนโค้ด",
+      tag: "GPU Cloud"
+    },
+
+    "Gemma": {
+      title: "Gemma · โมเดลทางเลือก",
+      description: "ใช้ช่วยงานทั่วไป วิเคราะห์ และทดลองเปรียบเทียบคำตอบ",
+      tag: "GPU Cloud"
+    },
+
+    "Claude Opus": {
+      title: "Claude Opus · โมเดลระดับสูง",
+      description: "เหมาะกับงานวิเคราะห์ซับซ้อนและช่วยพัฒนาโค้ด ผ่าน Anthropic API",
+      tag: "Anthropic API"
+    }
+
+  };
+
+  let selectedModel = "Qwen";
+
+  const chat = document.getElementById("chat");
+  const promptBox = document.getElementById("prompt");
+
+
+  // เปลี่ยนโมเดล AI
+
+  document.querySelectorAll(".model-btn").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      selectedModel = button.dataset.model;
+
+      document.querySelectorAll(".model-btn").forEach(item => {
+
+        item.classList.toggle("selected", item === button);
+
+      });
+
+      const config = modelConfig[selectedModel];
+
+      document.getElementById("modelTitle").textContent = config.title;
+
+      document.getElementById("modelDescription").textContent =
+        config.description;
+
+      document.getElementById("modelTag").textContent = config.tag;
+
+    });
+
+  });
+
+
+  // เพิ่มข้อความในหน้าแชท
+
+  function addMessage(role, text) {
+
+    const bubble = document.createElement("div");
+
+    bubble.className = "message " + role;
+
+    const label = document.createElement("small");
+
+    label.textContent =
+      role === "user" ? "คุณ" : selectedModel + " · ตัวอย่าง";
+
+    const content = document.createElement("div");
+
+    content.textContent = text;
+
+    bubble.append(label, content);
+
+    chat.appendChild(bubble);
+
+    bubble.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+  }
+
+
+  // ส่งข้อความ
+
+  function sendMessage() {
+
+    const text = promptBox.value.trim();
+
+    if (!text) return;
+
+    document.getElementById("welcome").style.display = "none";
+
+    document.getElementById("suggestions").style.display = "none";
+
+    addMessage("user", text);
+
+    promptBox.value = "";
+
+    addMessage(
+      "assistant",
+      "ตอนนี้หน้าเว็บยังเป็น Prototype จึงยังไม่ได้ส่งคำถามไปยัง " +
+      selectedModel +
+      " จริง\n\nขั้นตอนถัดไปคือเชื่อม Backend เพื่อส่งคำถามไปยังโมเดลที่เลือก โดยเก็บ API key ไว้ฝั่งเซิร์ฟเวอร์อย่างปลอดภัย"
+    );
+
+  }
+
+
+  // ปุ่มส่งข้อความ
+
+  document.getElementById("sendButton")
+    .addEventListener("click", sendMessage);
+
+
+  // กด Enter เพื่อส่งข้อความ
+
+  promptBox.addEventListener("keydown", event => {
+
+    if (event.key === "Enter" && !event.shiftKey) {
+
+      event.preventDefault();
+
+      sendMessage();
+
+    }
+
+  });
+
+
+  // ปุ่มคำถามแนะนำ
+
+  document.querySelectorAll(".suggestion").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+      promptBox.value = button.dataset.prompt;
+
+      promptBox.focus();
+
+    });
+
+  });
+
+
+  // เริ่มแชทใหม่
+
+  document.getElementById("newChat")
+    .addEventListener("click", () => {
+
+      chat.innerHTML = "";
+
+      document.getElementById("welcome").style.display = "";
+
+      document.getElementById("suggestions").style.display = "";
+
+      promptBox.value = "";
+
+    });
+
+</script>
+
+</body>
+</html>
