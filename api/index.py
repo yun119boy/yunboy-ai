@@ -2,16 +2,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="yunboy AI")
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://yunboy-ai.vercel.app"],
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type"],
+    allow_headers=["*"],
 )
 
 @app.get("/")
+@app.get("/api")
 def home():
     return {
         "status": "online",
@@ -20,9 +21,6 @@ def home():
 
 @app.post("/chat")
 def chat(data: dict):
-    message = data.get("message", "")
-
     return {
-        "reply": f"ได้รับข้อความแล้ว: {message}"
+        "reply": "ได้รับข้อความแล้ว: " + data.get("message", "")
     }
-
