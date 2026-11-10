@@ -20,25 +20,19 @@
       --accent2:#5bcbad;
     }
 
-    * {
-      box-sizing:border-box;
-    }
+    * { box-sizing:border-box; }
 
     body {
       margin:0;
       min-height:100vh;
       background:var(--bg);
       color:var(--text);
-      font:15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
     }
 
-    button, textarea {
-      font:inherit;
-    }
-
-    button {
-      cursor:pointer;
-    }
+    button, textarea { font:inherit; }
+    button { cursor:pointer; }
+    button:disabled { opacity:.55; cursor:not-allowed; }
 
     .app {
       display:grid;
@@ -74,16 +68,8 @@
       font-size:19px;
     }
 
-    .brand strong {
-      display:block;
-      font-size:17px;
-      letter-spacing:.2px;
-    }
-
-    .brand small {
-      color:var(--muted);
-      font-size:11px;
-    }
+    .brand strong { display:block; font-size:17px; letter-spacing:.2px; }
+    .brand small { color:var(--muted); font-size:11px; }
 
     .new-chat {
       border:0;
@@ -114,16 +100,8 @@
       font-size:13px;
     }
 
-    .nav-item.active {
-      background:var(--panel2);
-      color:white;
-    }
-
-    .history {
-      color:var(--muted);
-      font-size:12px;
-      padding:7px 10px;
-    }
+    .nav-item.active { background:var(--panel2); color:white; }
+    .history { color:var(--muted); font-size:12px; padding:7px 10px; }
 
     .side-bottom {
       margin-top:auto;
@@ -141,18 +119,16 @@
     }
 
     header {
-      height:68px;
+      min-height:68px;
       border-bottom:1px solid var(--line);
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:0 25px;
+      padding:12px 25px;
       gap:12px;
     }
 
-    .head-title {
-      font-weight:650;
-    }
+    .head-title { font-weight:650; }
 
     .status {
       display:flex;
@@ -168,6 +144,17 @@
       border-radius:50%;
       background:#e0b35d;
       box-shadow:0 0 10px #e0b35d66;
+      flex-shrink:0;
+    }
+
+    .dot.online {
+      background:#5bcbad;
+      box-shadow:0 0 10px #5bcbad66;
+    }
+
+    .dot.error {
+      background:#ef6b75;
+      box-shadow:0 0 10px #ef6b7566;
     }
 
     .workspace {
@@ -179,9 +166,7 @@
       flex-direction:column;
     }
 
-    .welcome {
-      margin:35px 0 26px;
-    }
+    .welcome { margin:35px 0 26px; }
 
     .eyebrow {
       color:var(--accent2);
@@ -197,11 +182,7 @@
       letter-spacing:-1.1px;
     }
 
-    .welcome p {
-      color:var(--muted);
-      margin:0;
-      max-width:600px;
-    }
+    .welcome p { color:var(--muted); margin:0; max-width:600px; }
 
     .model-row {
       display:flex;
@@ -211,11 +192,7 @@
       margin:4px 0 20px;
     }
 
-    .model-label {
-      color:var(--muted);
-      font-size:12px;
-      margin-right:3px;
-    }
+    .model-label { color:var(--muted); font-size:12px; margin-right:3px; }
 
     .model-btn {
       background:var(--panel);
@@ -243,13 +220,8 @@
       background:#8b7cff;
     }
 
-    .model-btn[data-model="Gemma"] .model-mark {
-      background:#54c6a8;
-    }
-
-    .model-btn[data-model="Claude Opus"] .model-mark {
-      background:#d49b70;
-    }
+    .model-btn[data-model="Gemma"] .model-mark { background:#54c6a8; }
+    .model-btn[data-model="Claude Opus"] .model-mark { background:#d49b70; }
 
     .model-info {
       background:var(--panel);
@@ -263,15 +235,8 @@
       margin-bottom:20px;
     }
 
-    .model-info strong {
-      font-size:13px;
-    }
-
-    .model-info p {
-      color:var(--muted);
-      font-size:11px;
-      margin:3px 0 0;
-    }
+    .model-info strong { font-size:13px; }
+    .model-info p { color:var(--muted); font-size:11px; margin:3px 0 0; }
 
     .tag {
       color:var(--accent2);
@@ -300,21 +265,9 @@
       transition:.15s;
     }
 
-    .suggestion:hover {
-      border-color:#7164c9;
-      transform:translateY(-1px);
-    }
-
-    .suggestion b {
-      display:block;
-      font-size:13px;
-      margin-bottom:4px;
-    }
-
-    .suggestion span {
-      color:var(--muted);
-      font-size:11px;
-    }
+    .suggestion:hover { border-color:#7164c9; transform:translateY(-1px); }
+    .suggestion b { display:block; font-size:13px; margin-bottom:4px; }
+    .suggestion span { color:var(--muted); font-size:11px; }
 
     .chat {
       display:flex;
@@ -329,6 +282,7 @@
       padding:12px 15px;
       font-size:13px;
       white-space:pre-wrap;
+      overflow-wrap:anywhere;
     }
 
     .message.user {
@@ -341,6 +295,11 @@
       align-self:flex-start;
       background:var(--panel);
       border:1px solid var(--line);
+    }
+
+    .message.error {
+      border-color:#8b3945;
+      background:#29171d;
     }
 
     .message small {
@@ -385,10 +344,7 @@
       padding:4px 3px 0;
     }
 
-    .hint {
-      color:#718096;
-      font-size:10px;
-    }
+    .hint { color:#718096; font-size:10px; }
 
     .send {
       border:0;
@@ -408,39 +364,19 @@
     }
 
     @media(max-width:760px) {
-      .app {
-        grid-template-columns:1fr;
-      }
-
-      aside {
-        display:none;
-      }
-
-      header {
-        padding:0 17px;
-      }
-
-      .workspace {
-        padding:22px 16px 15px;
-      }
-
-      .welcome {
-        margin:23px 0 20px;
-      }
-
-      .suggestions {
-        grid-template-columns:1fr;
-      }
-
-      .model-info {
-        align-items:flex-start;
-      }
+      .app { grid-template-columns:1fr; }
+      aside { display:none; }
+      header { padding:12px 17px; }
+      .workspace { padding:22px 16px 15px; }
+      .welcome { margin:23px 0 20px; }
+      .suggestions { grid-template-columns:1fr; }
+      .model-info { align-items:flex-start; }
+      .message { max-width:95%; }
     }
   </style>
 </head>
 
 <body>
-
 <div class="app">
 
   <aside>
@@ -452,9 +388,7 @@
       </div>
     </div>
 
-    <button class="new-chat" id="newChat">
-      ＋　เริ่มแชทใหม่
-    </button>
+    <button class="new-chat" id="newChat">＋　เริ่มแชทใหม่</button>
 
     <div>
       <div class="nav-label">เมนูหลัก</div>
@@ -466,7 +400,7 @@
 
     <div>
       <div class="nav-label">ประวัติล่าสุด</div>
-      <div class="history">ยังไม่มีบทสนทนา</div>
+      <div class="history" id="historyText">ยังไม่มีบทสนทนา</div>
     </div>
 
     <div class="side-bottom">
@@ -476,13 +410,11 @@
   </aside>
 
   <main>
-
     <header>
       <div class="head-title">แชท AI</div>
-
       <div class="status">
         <span class="dot" id="statusDot"></span>
-        <span id="statusText">โหมดทดลอง · ยังไม่เชื่อม AI</span>
+        <span id="statusText">กำลังตรวจสอบ Backend</span>
       </div>
     </header>
 
@@ -490,81 +422,60 @@
 
       <div class="welcome" id="welcome">
         <div class="eyebrow">YOUR AI WORKSPACE</div>
-
         <h1>วันนี้ให้ AI ช่วยอะไรดี?</h1>
-
-        <p>
-          เลือกโมเดลที่ต้องการ แล้วเริ่มถามคำถามหรือทำงานได้จากที่เดียว
-        </p>
+        <p>เลือกโมเดลที่ต้องการ แล้วเริ่มถามคำถามหรือทำงานได้จากที่เดียว</p>
       </div>
 
       <div class="model-row">
-
-        <span class="model-label">โมเดลที่ใช้งาน</span>
+        <span class="model-label">โมเดลที่ต้องการใช้</span>
 
         <button class="model-btn selected" data-model="Qwen">
-          <span class="model-mark"></span>
-          Qwen
+          <span class="model-mark"></span> Qwen
         </button>
 
         <button class="model-btn" data-model="Gemma">
-          <span class="model-mark"></span>
-          Gemma
+          <span class="model-mark"></span> Gemma
         </button>
 
         <button class="model-btn" data-model="Claude Opus">
-          <span class="model-mark"></span>
-          Claude Opus
+          <span class="model-mark"></span> Claude Opus
         </button>
-
       </div>
 
       <div class="model-info">
-
         <div>
-          <strong id="modelTitle">Qwen · โมเดลหลัก</strong>
-
+          <strong id="modelTitle">Qwen · โมเดลที่เลือก</strong>
           <p id="modelDescription">
-            เหมาะกับการถามตอบ ช่วยเรียน สรุปเนื้อหา และเขียนโค้ด
+            โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ
           </p>
         </div>
-
-        <span class="tag" id="modelTag">GPU Cloud</span>
-
+        <span class="tag" id="modelTag">ยังไม่เชื่อม AI</span>
       </div>
 
       <div class="suggestions" id="suggestions">
 
         <button class="suggestion"
           data-prompt="ช่วยอธิบายบทเรียนนี้ให้เข้าใจง่าย พร้อมยกตัวอย่าง">
-
           <b>📚 ช่วยเรื่องเรียน</b>
           <span>อธิบายบทเรียนและทำสรุป</span>
-
         </button>
 
         <button class="suggestion"
           data-prompt="ช่วยค้นคว้าหัวข้อนี้และจัดประเด็นสำคัญให้หน่อย">
-
           <b>🔎 ค้นคว้าข้อมูล</b>
           <span>วางโครงและจัดข้อมูลเป็นหัวข้อ</span>
-
         </button>
 
         <button class="suggestion"
           data-prompt="ช่วยวางโครงงานนำเสนอ พร้อมหัวข้อแต่ละสไลด์">
-
           <b>🖥️ ทำพรีเซนเทชัน</b>
           <span>วางโครงสไลด์และเนื้อหา</span>
-
         </button>
 
         <button class="suggestion"
           data-prompt="ช่วยตรวจโค้ดนี้และอธิบายวิธีแก้ทีละขั้นตอน">
-
           <b>⌨️ เขียนโค้ด</b>
           <span>ช่วยตรวจและอธิบายโค้ด</span>
-
         </button>
 
       </div>
@@ -572,9 +483,7 @@
       <div class="chat" id="chat"></div>
 
       <div class="composer-wrap">
-
         <div class="composer">
-
           <textarea
             id="prompt"
             rows="2"
@@ -582,108 +491,107 @@
           ></textarea>
 
           <div class="composer-bottom">
-
-            <span class="hint">
-              เลือกโมเดลได้จากด้านบน
-            </span>
-
-            <button class="send" id="sendButton">
-              ส่งข้อความ　↑
-            </button>
-
+            <span class="hint" id="sendHint">เชื่อมต่อ Backend ทดสอบแล้ว</span>
+            <button class="send" id="sendButton">ส่งข้อความ　↑</button>
           </div>
-
         </div>
 
         <div class="disclaimer">
-          คำตอบในหน้านี้เป็นข้อความตัวอย่าง ยังไม่ได้เชื่อมต่อบริการ AI จริง
+          ขณะนี้เชื่อมต่อ Backend ทดสอบแล้ว ยังไม่ได้เชื่อมต่อโมเดล AI จริง
         </div>
-
       </div>
 
     </section>
-
   </main>
-
 </div>
 
 <script>
+  const API_URL = "/api/index/chat";
 
   const modelConfig = {
-
     "Qwen": {
-      title: "Qwen · โมเดลหลัก",
-      description: "เหมาะกับการถามตอบ ช่วยเรียน สรุปเนื้อหา และเขียนโค้ด",
-      tag: "GPU Cloud"
+      title: "Qwen · โมเดลที่เลือก",
+      description: "โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ",
+      tag: "ยังไม่เชื่อม AI"
     },
-
     "Gemma": {
-      title: "Gemma · โมเดลทางเลือก",
-      description: "ใช้ช่วยงานทั่วไป วิเคราะห์ และทดลองเปรียบเทียบคำตอบ",
-      tag: "GPU Cloud"
+      title: "Gemma · โมเดลที่เลือก",
+      description: "โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ",
+      tag: "ยังไม่เชื่อม AI"
     },
-
     "Claude Opus": {
-      title: "Claude Opus · โมเดลระดับสูง",
-      description: "เหมาะกับงานวิเคราะห์ซับซ้อนและช่วยพัฒนาโค้ด ผ่าน Anthropic API",
-      tag: "Anthropic API"
+      title: "Claude Opus · โมเดลที่เลือก",
+      description: "โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ",
+      tag: "ยังไม่เชื่อม AI"
     }
-
   };
 
   let selectedModel = "Qwen";
+  let isSending = false;
 
   const chat = document.getElementById("chat");
   const promptBox = document.getElementById("prompt");
+  const sendButton = document.getElementById("sendButton");
+  const statusDot = document.getElementById("statusDot");
+  const statusText = document.getElementById("statusText");
+  const sendHint = document.getElementById("sendHint");
 
+  // แสดงสถานะ Backend
+  function setStatus(type, message) {
+    statusDot.className = "dot";
 
-  // เปลี่ยนโมเดล AI
+    if (type === "online") {
+      statusDot.classList.add("online");
+    } else if (type === "error") {
+      statusDot.classList.add("error");
+    }
 
+    statusText.textContent = message;
+  }
+
+  // เปลี่ยนโมเดลที่เลือก
   document.querySelectorAll(".model-btn").forEach(button => {
-
     button.addEventListener("click", () => {
-
       selectedModel = button.dataset.model;
 
       document.querySelectorAll(".model-btn").forEach(item => {
-
         item.classList.toggle("selected", item === button);
-
       });
 
       const config = modelConfig[selectedModel];
 
       document.getElementById("modelTitle").textContent = config.title;
-
-      document.getElementById("modelDescription").textContent =
-        config.description;
-
+      document.getElementById("modelDescription").textContent = config.description;
       document.getElementById("modelTag").textContent = config.tag;
-
     });
-
   });
 
-
-  // เพิ่มข้อความในหน้าแชท
-
-  function addMessage(role, text) {
-
+  // เพิ่มข้อความในแชท
+  function addMessage(role, text, options = {}) {
     const bubble = document.createElement("div");
 
     bubble.className = "message " + role;
 
+    if (options.error) {
+      bubble.classList.add("error");
+    }
+
     const label = document.createElement("small");
 
-    label.textContent =
-      role === "user" ? "คุณ" : selectedModel + " · ตัวอย่าง";
+    if (role === "user") {
+      label.textContent = "คุณ";
+    } else {
+      label.textContent = options.loading
+        ? "yunboy AI · กำลังประมวลผล"
+        : options.error
+          ? "ระบบแจ้งเตือน"
+          : "Backend · คำตอบทดสอบ";
+    }
 
     const content = document.createElement("div");
-
     content.textContent = text;
 
     bubble.append(label, content);
-
     chat.appendChild(bubble);
 
     bubble.scrollIntoView({
@@ -691,86 +599,149 @@
       block: "nearest"
     });
 
+    return { bubble, label, content };
   }
 
-
-  // ส่งข้อความ
-
-  function sendMessage() {
-
+  // ส่งข้อความไปยัง Backend
+  async function sendMessage() {
     const text = promptBox.value.trim();
 
-    if (!text) return;
+    if (!text || isSending) return;
 
     document.getElementById("welcome").style.display = "none";
-
     document.getElementById("suggestions").style.display = "none";
 
     addMessage("user", text);
 
     promptBox.value = "";
+    isSending = true;
 
-    addMessage(
+    sendButton.disabled = true;
+    sendButton.textContent = "กำลังส่ง...";
+    sendHint.textContent = "กำลังติดต่อ Backend";
+
+    setStatus("loading", "กำลังส่งข้อความ");
+
+    const loadingMessage = addMessage(
       "assistant",
-      "ตอนนี้หน้าเว็บยังเป็น Prototype จึงยังไม่ได้ส่งคำถามไปยัง " +
-      selectedModel +
-      " จริง\n\nขั้นตอนถัดไปคือเชื่อม Backend เพื่อส่งคำถามไปยังโมเดลที่เลือก โดยเก็บ API key ไว้ฝั่งเซิร์ฟเวอร์อย่างปลอดภัย"
+      "กำลังส่งข้อความไปยัง yunboy AI Backend...",
+      { loading: true }
     );
 
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: text
+        })
+      });
+
+      let data;
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error("Backend ส่งข้อมูลกลับมาไม่ใช่ JSON");
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail || data.message || "Backend ตอบกลับด้วยสถานะ HTTP " + response.status
+        );
+      }
+
+      if (typeof data.reply !== "string") {
+        throw new Error("ไม่พบข้อมูล reply ในคำตอบจาก Backend");
+      }
+
+      loadingMessage.label.textContent = "Backend · คำตอบทดสอบ";
+      loadingMessage.content.textContent = data.reply;
+
+      setStatus("online", "Backend เชื่อมต่อแล้ว");
+      sendHint.textContent = "เชื่อมต่อ Backend สำเร็จ";
+
+    } catch (error) {
+      loadingMessage.bubble.classList.add("error");
+      loadingMessage.label.textContent = "ระบบแจ้งเตือน";
+      loadingMessage.content.textContent =
+        "ไม่สามารถส่งข้อความได้\n\nรายละเอียด: " +
+        error.message +
+        "\n\nลองตรวจสอบการ Deploy และการเชื่อมต่อ Backend อีกครั้ง";
+
+      setStatus("error", "Backend มีปัญหาในการเชื่อมต่อ");
+      sendHint.textContent = "ส่งข้อความไม่สำเร็จ";
+
+    } finally {
+      isSending = false;
+      sendButton.disabled = false;
+      sendButton.textContent = "ส่งข้อความ　↑";
+      promptBox.focus();
+    }
   }
 
-
   // ปุ่มส่งข้อความ
-
-  document.getElementById("sendButton")
-    .addEventListener("click", sendMessage);
-
+  sendButton.addEventListener("click", sendMessage);
 
   // กด Enter เพื่อส่งข้อความ
-
   promptBox.addEventListener("keydown", event => {
-
     if (event.key === "Enter" && !event.shiftKey) {
-
       event.preventDefault();
-
       sendMessage();
-
     }
-
   });
 
-
-  // ปุ่มคำถามแนะนำ
-
+  // คำถามแนะนำ
   document.querySelectorAll(".suggestion").forEach(button => {
-
     button.addEventListener("click", () => {
-
       promptBox.value = button.dataset.prompt;
-
       promptBox.focus();
-
     });
-
   });
-
 
   // เริ่มแชทใหม่
+  document.getElementById("newChat").addEventListener("click", () => {
+    if (isSending) return;
 
-  document.getElementById("newChat")
-    .addEventListener("click", () => {
+    chat.innerHTML = "";
 
-      chat.innerHTML = "";
+    document.getElementById("welcome").style.display = "";
+    document.getElementById("suggestions").style.display = "";
 
-      document.getElementById("welcome").style.display = "";
+    promptBox.value = "";
+    sendHint.textContent = "พร้อมส่งข้อความ";
+    setStatus("online", "Backend พร้อมใช้งาน");
 
-      document.getElementById("suggestions").style.display = "";
+    promptBox.focus();
+  });
 
-      promptBox.value = "";
+  // ตรวจสอบ Backend ตอนเปิดหน้าเว็บ
+  async function checkBackend() {
+    try {
+      const response = await fetch("/api/index");
 
-    });
+      if (!response.ok) {
+        throw new Error("HTTP " + response.status);
+      }
 
+      const data = await response.json();
+
+      if (data.status === "online") {
+        setStatus("online", "Backend ออนไลน์");
+        sendHint.textContent = "เชื่อมต่อ Backend สำเร็จ";
+      } else {
+        throw new Error("Backend ไม่ได้ส่งสถานะ online");
+      }
+
+    } catch (error) {
+      setStatus("error", "ไม่สามารถตรวจสอบ Backend ได้");
+      sendHint.textContent = "โปรดตรวจสอบ Backend";
+    }
+  }
+
+  checkBackend();
 </script>
 
 </body>
