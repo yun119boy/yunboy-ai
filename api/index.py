@@ -33,8 +33,12 @@ OTP_EXPIRE_MINUTES = 5
 OTP_MAX_ATTEMPTS = 5
 OTP_RESEND_SECONDS = 60
 ADMIN_SESSION_HOURS = 8
+PENDING_SESSION_MINUTES = 5
 
 COOKIE_NAME = "yunboy_admin_session"
+PENDING_COOKIE_NAME = "yunboy_admin_pending"
+
+ISSUER = "yunboy-ai"
 
 
 # =========================
@@ -44,7 +48,7 @@ COOKIE_NAME = "yunboy_admin_session"
 app = FastAPI(
     title="yunboy AI",
     description="yunboy AI Backend API",
-    version="2.0.0",
+    version="2.1.0",
     docs_url="/api/index/docs",
     openapi_url="/api/index/openapi.json",
     redoc_url="/api/index/redoc"
@@ -102,6 +106,7 @@ def check_config():
 def service_headers():
     return {
         "apikey": SUPABASE_SERVICE_ROLE_KEY,
+        "Authorization": f"Bearer {SUPABASE_SERVICE_ROLE_KEY}",
         "Content-Type": "application/json"
     }
 
@@ -109,41 +114,116 @@ def service_headers():
 def otp_digest(otp: str) -> str:
     return hmac.new(
         ADMIN_SESSION_SECRET.encode(),
-        otp.encode(),
+        ("otp:" + otp).encode(),
         hashlib.sha256
     ).hexdigest()
 
 
-def send_otp_email(email: str, otp: str):
-    response = httpx.post(
-        "https://api.resend.com/emails",
-        headers={
-            "Authorization": f"Bearer {RESEND_API_KEY}",
-            "Content-Type": "application/json"
-        },
-        json={
-            "from": RESEND_FROM_EMAIL,
-            "to": [email],
-            "subject": "yunboy AI - Admin Verification Code",
-            "html": f"""
-                <div style="font-family:Arial,sans-serif">
-                    <h2>yunboy AI Admin Verification</h2>
-                    <p>Your verification code is:</p>
-                    <h1 style="letter-spacing:8px">{otp}</h1>
-                    <p>This code expires in 5 minutes.</p>
-                    <p>If you did not request this code,
-                    please ignore this email.</p>
-                </div>
-            """
-        },
-        timeout=15
-    )
+def pending_digest(token: str) -> str:
+    return hmac.new(
+        ADMIN_SESSION_SECRET.encode(),
+        ("pending:" + token).encode(),
+        hashlib.sha256
+    ).hexdigest()
 
-    if response.status_code not in (200, 201):
+
+def supabase_request(method: str, path: str, **kwargs):
+    check_config()
+
+    headers = service_headers()
+    headers.update(kwargs.pop("headers", {}))
+
+    try:
+        response = httpx.request(
+            method,
+            f"{SUPABASE_URL}/rest/v1/{path}",
+            headers=headers,
+            timeout=15,
+            **kwargs
+        )
+
+        response.raise_for_status()
+        return response
+
+    except httpx.HTTPError:
+        raise HTTPException(
+            status_code=503,
+            detail="Supabase database request failed"
+        )
+
+
+def check_admin_role(user_id: str):
+    result = supabase_request(
+        "GET",
+        "profiles",
+        params={
+            "id": f"eq.{user_id}",
+            "select": "role",
+            "limit": "1"
+        }
+    ).json()
+
+    if not result or result[0].get("role") != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admin access denied"
+        )
+
+
+def send_otp_email(email: str, otp: str):
+    try:
+        result = httpx.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "from": RESEND_FROM_EMAIL,
+                "to": [email],
+                "subject": "yunboy AI - Admin Verification Code",
+                "html": f"""
+                    <div style="font-family:Arial,sans-serif">
+                        <h2>yunboy AI Admin Verification</h2>
+                        <p>Your verification code is:</p>
+                        <h1 style="letter-spacing:8px">{otp}</h1>
+                        <p>This code expires in 5 minutes.</p>
+                        <p>If you did not request this code,
+                        please ignore this email.</p>
+                    </div>
+                """
+            },
+            timeout=15
+        )
+
+        result.raise_for_status()
+
+    except httpx.HTTPError:
         raise HTTPException(
             status_code=502,
             detail="Unable to send verification email"
         )
+
+
+def create_pending_token(user_id: str, email: str) -> str:
+    now = datetime.now(timezone.utc)
+
+    payload = {
+        "sub": user_id,
+        "email": email,
+        "typ": "pending_admin",
+        "iss": ISSUER,
+        "aud": "yunboy-admin-pending",
+        "iat": now,
+        "exp": now + timedelta(minutes=PENDING_SESSION_MINUTES),
+        "jti": secrets.token_urlsafe(32)
+    }
+
+    return jwt.encode(
+        payload,
+        ADMIN_SESSION_SECRET,
+        algorithm="HS256"
+    )
 
 
 def create_admin_session(user_id: str, email: str) -> str:
@@ -153,10 +233,12 @@ def create_admin_session(user_id: str, email: str) -> str:
         "sub": user_id,
         "email": email,
         "role": "admin",
-        "iss": "yunboy-ai",
+        "typ": "admin",
+        "iss": ISSUER,
         "aud": "yunboy-admin",
         "iat": now,
-        "exp": now + timedelta(hours=ADMIN_SESSION_HOURS)
+        "exp": now + timedelta(hours=ADMIN_SESSION_HOURS),
+        "jti": secrets.token_urlsafe(32)
     }
 
     return jwt.encode(
@@ -164,6 +246,28 @@ def create_admin_session(user_id: str, email: str) -> str:
         ADMIN_SESSION_SECRET,
         algorithm="HS256"
     )
+
+
+def decode_pending_token(token: str):
+    try:
+        payload = jwt.decode(
+            token,
+            ADMIN_SESSION_SECRET,
+            algorithms=["HS256"],
+            issuer=ISSUER,
+            audience="yunboy-admin-pending"
+        )
+
+        if payload.get("typ") != "pending_admin":
+            raise ValueError("Invalid token type")
+
+        return payload
+
+    except Exception:
+        raise HTTPException(
+            status_code=401,
+            detail="Login verification expired. Please login again."
+        )
 
 
 def get_admin_session(request: Request):
@@ -182,40 +286,28 @@ def get_admin_session(request: Request):
             token,
             ADMIN_SESSION_SECRET,
             algorithms=["HS256"],
-            issuer="yunboy-ai",
+            issuer=ISSUER,
             audience="yunboy-admin"
         )
 
-        if payload.get("role") != "admin":
+        if (
+            payload.get("role") != "admin"
+            or payload.get("typ") != "admin"
+        ):
             raise ValueError("Invalid role")
 
+        # Check current admin permission again
+        check_admin_role(payload["sub"])
+
         return payload
+
+    except HTTPException:
+        raise
 
     except Exception:
         raise HTTPException(
             status_code=401,
             detail="Invalid or expired admin session"
-        )
-
-
-def supabase_request(method: str, path: str, **kwargs):
-    check_config()
-
-    try:
-        response = httpx.request(
-            method,
-            f"{SUPABASE_URL}/rest/v1/{path}",
-            headers=service_headers(),
-            timeout=15,
-            **kwargs
-        )
-        response.raise_for_status()
-        return response
-
-    except httpx.HTTPError:
-        raise HTTPException(
-            status_code=503,
-            detail="Supabase database request failed"
         )
 
 
@@ -251,7 +343,7 @@ def chat(data: ChatRequest):
 # =========================
 
 @app.post("/api/index/admin/login")
-def admin_login(data: AdminLoginRequest):
+def admin_login(data: AdminLoginRequest, response: Response):
     check_config()
 
     try:
@@ -288,29 +380,13 @@ def admin_login(data: AdminLoginRequest):
                 detail="Authentication failed"
             )
 
-        # Check admin role in database
-        profile_response = supabase_request(
-            "GET",
-            "profiles",
-            params={
-                "id": f"eq.{user_id}",
-                "select": "role",
-                "limit": "1"
-            }
-        )
-
-        profiles = profile_response.json()
-
-        if not profiles or profiles[0].get("role") != "admin":
-            raise HTTPException(
-                status_code=403,
-                detail="Admin access denied"
-            )
+        # Check admin permission
+        check_admin_role(user_id)
 
         now = datetime.now(timezone.utc)
 
-        # Rate limit: no resend within 60 seconds
-        recent_response = supabase_request(
+        # Resend cooldown
+        recent = supabase_request(
             "GET",
             "admin_otp_challenges",
             params={
@@ -319,16 +395,16 @@ def admin_login(data: AdminLoginRequest):
                 "select": "id",
                 "limit": "1"
             }
-        )
+        ).json()
 
-        if recent_response.json():
+        if recent:
             raise HTTPException(
                 status_code=429,
                 detail="Please wait before requesting another OTP"
             )
 
-        # Rate limit: maximum 5 requests per hour
-        hourly_response = supabase_request(
+        # Maximum 5 requests per hour
+        hourly = supabase_request(
             "GET",
             "admin_otp_challenges",
             params={
@@ -337,9 +413,9 @@ def admin_login(data: AdminLoginRequest):
                 "select": "id",
                 "limit": "5"
             }
-        )
+        ).json()
 
-        if len(hourly_response.json()) >= 5:
+        if len(hourly) >= 5:
             raise HTTPException(
                 status_code=429,
                 detail="Too many OTP requests"
@@ -348,7 +424,10 @@ def admin_login(data: AdminLoginRequest):
         otp = f"{secrets.randbelow(1000000):06d}"
         expires_at = now + timedelta(minutes=OTP_EXPIRE_MINUTES)
 
-        # Invalidate previous challenges
+        pending_token = create_pending_token(user_id, email)
+        pending_hash = pending_digest(pending_token)
+
+        # Invalidate previous unused challenges
         supabase_request(
             "PATCH",
             "admin_otp_challenges",
@@ -361,7 +440,7 @@ def admin_login(data: AdminLoginRequest):
             }
         )
 
-        # Store only OTP hash
+        # Store OTP hash and pending token hash
         supabase_request(
             "POST",
             "admin_otp_challenges",
@@ -369,12 +448,39 @@ def admin_login(data: AdminLoginRequest):
             json={
                 "user_id": user_id,
                 "otp_hash": otp_digest(otp),
+                "pending_token_hash": pending_hash,
                 "expires_at": expires_at.isoformat()
             }
         )
 
         # Send email
-        send_otp_email(email, otp)
+        try:
+            send_otp_email(email, otp)
+        except HTTPException:
+            # Invalidate challenge if email delivery fails
+            supabase_request(
+                "PATCH",
+                "admin_otp_challenges",
+                params={
+                    "pending_token_hash": f"eq.{pending_hash}",
+                    "consumed_at": "is.null"
+                },
+                json={
+                    "consumed_at": datetime.now(timezone.utc).isoformat()
+                }
+            )
+            raise
+
+        # Set browser-bound pending cookie
+        response.set_cookie(
+            key=PENDING_COOKIE_NAME,
+            value=pending_token,
+            max_age=PENDING_SESSION_MINUTES * 60,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            path="/api/index"
+        )
 
         return {
             "status": "otp_sent",
@@ -397,17 +503,119 @@ def admin_login(data: AdminLoginRequest):
 # =========================
 
 @app.post("/api/index/admin/verify-otp")
-def verify_admin_otp(data: OTPVerifyRequest, response: Response, request: Request):
+def verify_admin_otp(
+    data: OTPVerifyRequest,
+    response: Response,
+    request: Request
+):
     check_config()
 
-    # This endpoint uses a temporary identity established by
-    # a pending OTP challenge. The email/password login endpoint
-    # must be followed by verification of the latest challenge.
+    pending_token = request.cookies.get(PENDING_COOKIE_NAME)
 
-    raise HTTPException(
-        status_code=501,
-        detail="OTP verification requires the pending-login flow to be completed"
+    if not pending_token:
+        raise HTTPException(
+            status_code=401,
+            detail="Login verification expired. Please login again."
+        )
+
+    payload = decode_pending_token(pending_token)
+
+    user_id = payload.get("sub")
+    email = payload.get("email")
+
+    if not user_id or not email:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid pending login"
+        )
+
+    pending_hash = pending_digest(pending_token)
+
+    # Verify and consume OTP atomically in Supabase
+    result = supabase_request(
+        "POST",
+        "rpc/verify_admin_otp",
+        json={
+            "p_pending_token_hash": pending_hash,
+            "p_otp_hash": otp_digest(data.otp),
+            "p_now": datetime.now(timezone.utc).isoformat()
+        }
+    ).json()
+
+    if not isinstance(result, dict):
+        raise HTTPException(
+            status_code=503,
+            detail="Invalid verification response"
+        )
+
+    status = result.get("status")
+
+    if status == "invalid":
+        raise HTTPException(
+            status_code=401,
+            detail="Incorrect verification code"
+        )
+
+    if status == "expired":
+        raise HTTPException(
+            status_code=401,
+            detail="Verification code expired"
+        )
+
+    if status == "locked":
+        raise HTTPException(
+            status_code=429,
+            detail="Too many incorrect attempts"
+        )
+
+    if status == "used":
+        raise HTTPException(
+            status_code=401,
+            detail="Verification code already used"
+        )
+
+    if status != "success":
+        raise HTTPException(
+            status_code=401,
+            detail="Verification failed"
+        )
+
+    if result.get("user_id") != user_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid login session"
+        )
+
+    # Check admin role again before creating session
+    check_admin_role(user_id)
+
+    session_token = create_admin_session(user_id, email)
+
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=session_token,
+        max_age=ADMIN_SESSION_HOURS * 60 * 60,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        path="/api/index"
     )
+
+    # Remove pending login cookie
+    response.delete_cookie(
+        key=PENDING_COOKIE_NAME,
+        path="/api/index",
+        secure=True,
+        httponly=True,
+        samesite="lax"
+    )
+
+    return {
+        "status": "authenticated",
+        "authenticated": True,
+        "email": email,
+        "role": "admin"
+    }
 
 
 # =========================
@@ -433,6 +641,14 @@ def admin_me(request: Request):
 def admin_logout(response: Response):
     response.delete_cookie(
         key=COOKIE_NAME,
+        path="/api/index",
+        secure=True,
+        httponly=True,
+        samesite="lax"
+    )
+
+    response.delete_cookie(
+        key=PENDING_COOKIE_NAME,
         path="/api/index",
         secure=True,
         httponly=True,
