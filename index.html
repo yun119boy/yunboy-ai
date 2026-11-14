@@ -2,390 +2,249 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#10131b">
-  <title>yunboy AI</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#10131b">
+<title>yunboy AI</title>
 
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg:#0b0e14;
-      --panel:#121722;
-      --panel2:#181f2c;
-      --line:#283244;
-      --text:#eef2f8;
-      --muted:#9aa7ba;
-      --accent:#8b7cff;
-      --accent2:#5bcbad;
-    }
+<style>
+:root {
+  color-scheme:dark;
+  --bg:#0b0e14;
+  --panel:#121722;
+  --panel2:#181f2c;
+  --line:#283244;
+  --text:#eef2f8;
+  --muted:#9aa7ba;
+  --accent:#8b7cff;
+  --accent2:#5bcbad;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;min-height:100vh;background:var(--bg);
+  color:var(--text);
+  font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+button,textarea,input {font:inherit}
+button {cursor:pointer}
+button:disabled {opacity:.55;cursor:not-allowed}
 
-    * { box-sizing:border-box; }
+.app {
+  display:grid;
+  grid-template-columns:260px minmax(0,1fr);
+  min-height:100vh;
+}
+aside {
+  background:#0e121a;border-right:1px solid var(--line);
+  padding:20px 15px;display:flex;flex-direction:column;gap:18px;
+}
+.brand {display:flex;align-items:center;gap:11px;padding:5px 8px 15px}
+.logo {
+  width:38px;height:38px;display:grid;place-items:center;
+  border-radius:13px;background:linear-gradient(135deg,#8978ff,#48c8aa);
+  color:#080b12;font-weight:900;font-size:19px;
+}
+.brand strong {display:block;font-size:17px}
+.brand small {color:var(--muted);font-size:11px}
+.new-chat {
+  border:0;border-radius:11px;background:var(--accent);
+  color:white;padding:11px 13px;text-align:left;font-weight:650;
+}
+.nav-label {
+  color:#728096;text-transform:uppercase;letter-spacing:1.2px;
+  font-size:10px;padding:0 9px;margin:4px 0;
+}
+.nav-item {
+  color:#c6cfdd;padding:9px 10px;border-radius:9px;
+  display:flex;gap:10px;align-items:center;font-size:13px;
+}
+.nav-item.active {background:var(--panel2);color:white}
+.history {color:var(--muted);font-size:12px;padding:7px 10px}
+.side-bottom {
+  margin-top:auto;border-top:1px solid var(--line);
+  padding:14px 8px 0;color:var(--muted);font-size:12px;
+}
+main {min-width:0;display:flex;flex-direction:column;min-height:100vh}
+header {
+  min-height:68px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 25px;gap:12px;
+}
+.head-title {font-weight:650}
+.header-right {display:flex;align-items:center;gap:17px}
+.status {display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+.dot {
+  width:8px;height:8px;border-radius:50%;background:#e0b35d;
+  box-shadow:0 0 10px #e0b35d66;flex-shrink:0;
+}
+.dot.online {background:#5bcbad;box-shadow:0 0 10px #5bcbad66}
+.dot.error {background:#ef6b75;box-shadow:0 0 10px #ef6b7566}
 
-    body {
-      margin:0;
-      min-height:100vh;
-      background:var(--bg);
-      color:var(--text);
-      font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-    }
+.admin-button {
+  border:1px solid #51478c;background:#211e39;color:white;
+  border-radius:10px;padding:8px 13px;font-size:12px;font-weight:650;
+}
+.admin-button.logged {
+  border-color:#28594e;background:#122b27;color:#8ce3c8;
+}
+.workspace {
+  width:min(920px,100%);margin:0 auto;padding:35px 25px 20px;
+  flex:1;display:flex;flex-direction:column;
+}
+.welcome {margin:35px 0 26px}
+.eyebrow {color:var(--accent2);font-size:12px;letter-spacing:1.4px;font-weight:700}
+h1 {font-size:clamp(28px,4vw,42px);line-height:1.15;margin:9px 0 10px;letter-spacing:-1.1px}
+.welcome p {color:var(--muted);margin:0;max-width:600px}
+.model-row {display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:4px 0 20px}
+.model-label {color:var(--muted);font-size:12px;margin-right:3px}
+.model-btn {
+  background:var(--panel);border:1px solid var(--line);color:#cbd5e1;
+  border-radius:10px;padding:9px 13px;font-size:12px;
+  display:flex;gap:8px;align-items:center;
+}
+.model-btn.selected {border-color:var(--accent);background:#211e39;color:white}
+.model-mark {width:7px;height:7px;border-radius:50%;background:#8b7cff}
+.model-btn[data-model="Gemma"] .model-mark {background:#54c6a8}
+.model-btn[data-model="Claude Opus"] .model-mark {background:#d49b70}
+.model-info {
+  background:var(--panel);border:1px solid var(--line);border-radius:13px;
+  padding:14px 16px;display:flex;align-items:center;
+  justify-content:space-between;gap:15px;margin-bottom:20px;
+}
+.model-info strong {font-size:13px}
+.model-info p {color:var(--muted);font-size:11px;margin:3px 0 0}
+.tag {
+  color:var(--accent2);font-size:10px;border:1px solid #28594e;
+  background:#122b27;padding:4px 8px;border-radius:20px;white-space:nowrap;
+}
+.suggestions {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:5px 0 25px}
+.suggestion {
+  background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:14px;text-align:left;color:var(--text);transition:.15s;
+}
+.suggestion:hover {border-color:#7164c9;transform:translateY(-1px)}
+.suggestion b {display:block;font-size:13px;margin-bottom:4px}
+.suggestion span {color:var(--muted);font-size:11px}
+.chat {display:flex;flex-direction:column;gap:14px;padding-bottom:20px}
+.message {
+  max-width:85%;border-radius:14px;padding:12px 15px;
+  font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;
+}
+.message.user {align-self:flex-end;background:#302b52;border:1px solid #494078}
+.message.assistant {align-self:flex-start;background:var(--panel);border:1px solid var(--line)}
+.message.error {border-color:#8b3945;background:#29171d}
+.message small {display:block;color:var(--muted);font-size:10px;margin-bottom:5px}
+.composer-wrap {
+  position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 20%);
+  padding:15px 0 10px;
+}
+.composer {
+  border:1px solid #354056;background:#151b27;border-radius:16px;
+  padding:11px;box-shadow:0 12px 35px #0005;
+}
+textarea {
+  width:100%;resize:vertical;min-height:54px;max-height:180px;
+  background:transparent;color:var(--text);border:0;outline:0;padding:5px 7px;
+}
+.composer-bottom {display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 3px 0}
+.hint {color:#718096;font-size:10px}
+.send {
+  border:0;background:var(--accent);color:white;border-radius:10px;
+  padding:8px 16px;font-weight:650;font-size:12px;
+}
+.disclaimer {text-align:center;color:#667386;font-size:10px;padding:10px 0 0}
 
-    button, textarea { font:inherit; }
-    button { cursor:pointer; }
-    button:disabled { opacity:.55; cursor:not-allowed; }
+/* ADMIN MODAL */
+.modal-backdrop {
+  position:fixed;inset:0;background:#000a;backdrop-filter:blur(7px);
+  display:none;align-items:center;justify-content:center;
+  padding:18px;z-index:1000;overflow-y:auto;
+}
+.modal-backdrop.show {display:flex}
+.admin-modal {
+  width:min(440px,100%);background:#121722;border:1px solid #354056;
+  border-radius:19px;padding:25px;box-shadow:0 25px 80px #0009;
+  position:relative;margin:auto;
+}
+.modal-close {
+  position:absolute;right:16px;top:14px;background:transparent;
+  border:0;color:#9aa7ba;font-size:23px;
+}
+.modal-logo {
+  width:43px;height:43px;border-radius:14px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#8978ff,#48c8aa);
+  color:#080b12;font-weight:900;font-size:21px;margin-bottom:17px;
+}
+.admin-modal h2 {font-size:21px;margin:0 0 5px}
+.modal-description {color:var(--muted);font-size:12px;margin:0 0 20px}
+.form-label {display:block;color:#cbd5e1;font-size:12px;margin:13px 0 6px}
+.form-input {
+  width:100%;background:#0b0e14;border:1px solid #354056;
+  border-radius:10px;padding:12px;color:white;outline:none;
+}
+.form-input:focus {border-color:var(--accent)}
+.modal-primary {
+  width:100%;margin-top:18px;border:0;border-radius:10px;
+  background:var(--accent);color:white;padding:12px;font-weight:700;
+}
+.modal-message {
+  display:none;margin-top:14px;border-radius:9px;padding:10px;
+  font-size:12px;white-space:pre-wrap;
+}
+.modal-message.error {display:block;background:#29171d;color:#ffadb5;border:1px solid #713743}
+.modal-message.success {display:block;background:#122b27;color:#8ce3c8;border:1px solid #28594e}
+.modal-back-link {
+  display:block;text-align:center;margin-top:14px;color:#a99fff;
+  background:transparent;border:0;width:100%;font-size:12px;
+}
+.otp-input {text-align:center;font-size:24px;letter-spacing:9px;font-weight:700}
+.admin-dashboard {
+  width:min(760px,100%);background:#121722;border:1px solid #354056;
+  border-radius:17px;padding:24px;
+}
+.dashboard-top {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:22px}
+.dashboard-top h2 {margin:0;font-size:21px}
+.dashboard-tag {color:#8ce3c8;background:#122b27;border:1px solid #28594e;padding:5px 10px;border-radius:20px;font-size:11px}
+.dashboard-card {
+  background:#0e121a;border:1px solid var(--line);
+  border-radius:13px;padding:17px;margin-bottom:12px;
+}
+.dashboard-card strong {font-size:13px}
+.dashboard-card p {font-size:12px;color:var(--muted);margin:5px 0 0;overflow-wrap:anywhere}
+.dashboard-actions {display:flex;gap:10px;flex-wrap:wrap;margin-top:17px}
+.logout-button {
+  background:#321b24;border:1px solid #713743;color:#ffadb5;
+  border-radius:10px;padding:10px 16px;font-size:12px;
+}
+.close-dashboard {
+  background:#202938;border:1px solid #354056;color:white;
+  border-radius:10px;padding:10px 16px;font-size:12px;
+}
 
-    .app {
-      display:grid;
-      grid-template-columns:260px minmax(0,1fr);
-      min-height:100vh;
-    }
-
-    aside {
-      background:#0e121a;
-      border-right:1px solid var(--line);
-      padding:20px 15px;
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-    }
-
-    .brand {
-      display:flex;
-      align-items:center;
-      gap:11px;
-      padding:5px 8px 15px;
-    }
-
-    .logo {
-      width:38px;
-      height:38px;
-      display:grid;
-      place-items:center;
-      border-radius:13px;
-      background:linear-gradient(135deg,#8978ff,#48c8aa);
-      color:#080b12;
-      font-weight:900;
-      font-size:19px;
-    }
-
-    .brand strong { display:block; font-size:17px; letter-spacing:.2px; }
-    .brand small { color:var(--muted); font-size:11px; }
-
-    .new-chat {
-      border:0;
-      border-radius:11px;
-      background:var(--accent);
-      color:white;
-      padding:11px 13px;
-      text-align:left;
-      font-weight:650;
-    }
-
-    .nav-label {
-      color:#728096;
-      text-transform:uppercase;
-      letter-spacing:1.2px;
-      font-size:10px;
-      padding:0 9px;
-      margin:4px 0;
-    }
-
-    .nav-item {
-      color:#c6cfdd;
-      padding:9px 10px;
-      border-radius:9px;
-      display:flex;
-      gap:10px;
-      align-items:center;
-      font-size:13px;
-    }
-
-    .nav-item.active { background:var(--panel2); color:white; }
-    .history { color:var(--muted); font-size:12px; padding:7px 10px; }
-
-    .side-bottom {
-      margin-top:auto;
-      border-top:1px solid var(--line);
-      padding:14px 8px 0;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    main {
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      min-height:100vh;
-    }
-
-    header {
-      min-height:68px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:12px 25px;
-      gap:12px;
-    }
-
-    .head-title { font-weight:650; }
-
-    .status {
-      display:flex;
-      align-items:center;
-      gap:8px;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .dot {
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:#e0b35d;
-      box-shadow:0 0 10px #e0b35d66;
-      flex-shrink:0;
-    }
-
-    .dot.online {
-      background:#5bcbad;
-      box-shadow:0 0 10px #5bcbad66;
-    }
-
-    .dot.error {
-      background:#ef6b75;
-      box-shadow:0 0 10px #ef6b7566;
-    }
-
-    .workspace {
-      width:min(920px,100%);
-      margin:0 auto;
-      padding:35px 25px 20px;
-      flex:1;
-      display:flex;
-      flex-direction:column;
-    }
-
-    .welcome { margin:35px 0 26px; }
-
-    .eyebrow {
-      color:var(--accent2);
-      font-size:12px;
-      letter-spacing:1.4px;
-      font-weight:700;
-    }
-
-    h1 {
-      font-size:clamp(28px,4vw,42px);
-      line-height:1.15;
-      margin:9px 0 10px;
-      letter-spacing:-1.1px;
-    }
-
-    .welcome p { color:var(--muted); margin:0; max-width:600px; }
-
-    .model-row {
-      display:flex;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      margin:4px 0 20px;
-    }
-
-    .model-label { color:var(--muted); font-size:12px; margin-right:3px; }
-
-    .model-btn {
-      background:var(--panel);
-      border:1px solid var(--line);
-      color:#cbd5e1;
-      border-radius:10px;
-      padding:9px 13px;
-      font-size:12px;
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-
-    .model-btn.selected {
-      border-color:var(--accent);
-      background:#211e39;
-      color:white;
-      box-shadow:0 0 0 1px #8b7cff22 inset;
-    }
-
-    .model-mark {
-      width:7px;
-      height:7px;
-      border-radius:50%;
-      background:#8b7cff;
-    }
-
-    .model-btn[data-model="Gemma"] .model-mark { background:#54c6a8; }
-    .model-btn[data-model="Claude Opus"] .model-mark { background:#d49b70; }
-
-    .model-info {
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:13px;
-      padding:14px 16px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:15px;
-      margin-bottom:20px;
-    }
-
-    .model-info strong { font-size:13px; }
-    .model-info p { color:var(--muted); font-size:11px; margin:3px 0 0; }
-
-    .tag {
-      color:var(--accent2);
-      font-size:10px;
-      border:1px solid #28594e;
-      background:#122b27;
-      padding:4px 8px;
-      border-radius:20px;
-      white-space:nowrap;
-    }
-
-    .suggestions {
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:11px;
-      margin:5px 0 25px;
-    }
-
-    .suggestion {
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:14px;
-      text-align:left;
-      color:var(--text);
-      transition:.15s;
-    }
-
-    .suggestion:hover { border-color:#7164c9; transform:translateY(-1px); }
-    .suggestion b { display:block; font-size:13px; margin-bottom:4px; }
-    .suggestion span { color:var(--muted); font-size:11px; }
-
-    .chat {
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-      padding-bottom:20px;
-    }
-
-    .message {
-      max-width:85%;
-      border-radius:14px;
-      padding:12px 15px;
-      font-size:13px;
-      white-space:pre-wrap;
-      overflow-wrap:anywhere;
-    }
-
-    .message.user {
-      align-self:flex-end;
-      background:#302b52;
-      border:1px solid #494078;
-    }
-
-    .message.assistant {
-      align-self:flex-start;
-      background:var(--panel);
-      border:1px solid var(--line);
-    }
-
-    .message.error {
-      border-color:#8b3945;
-      background:#29171d;
-    }
-
-    .message small {
-      display:block;
-      color:var(--muted);
-      font-size:10px;
-      margin-bottom:5px;
-    }
-
-    .composer-wrap {
-      position:sticky;
-      bottom:0;
-      background:linear-gradient(transparent,var(--bg) 20%);
-      padding:15px 0 10px;
-    }
-
-    .composer {
-      border:1px solid #354056;
-      background:#151b27;
-      border-radius:16px;
-      padding:11px;
-      box-shadow:0 12px 35px #0005;
-    }
-
-    textarea {
-      width:100%;
-      resize:vertical;
-      min-height:54px;
-      max-height:180px;
-      background:transparent;
-      color:var(--text);
-      border:0;
-      outline:0;
-      padding:5px 7px;
-    }
-
-    .composer-bottom {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:4px 3px 0;
-    }
-
-    .hint { color:#718096; font-size:10px; }
-
-    .send {
-      border:0;
-      background:var(--accent);
-      color:white;
-      border-radius:10px;
-      padding:8px 16px;
-      font-weight:650;
-      font-size:12px;
-    }
-
-    .disclaimer {
-      text-align:center;
-      color:#667386;
-      font-size:10px;
-      padding:10px 0 0;
-    }
-
-    @media(max-width:760px) {
-      .app { grid-template-columns:1fr; }
-      aside { display:none; }
-      header { padding:12px 17px; }
-      .workspace { padding:22px 16px 15px; }
-      .welcome { margin:23px 0 20px; }
-      .suggestions { grid-template-columns:1fr; }
-      .model-info { align-items:flex-start; }
-      .message { max-width:95%; }
-    }
-  </style>
+@media(max-width:760px) {
+  .app {grid-template-columns:1fr}
+  aside {display:none}
+  header {padding:12px 14px}
+  .header-right {gap:9px}
+  .status {font-size:10px}
+  .admin-button {padding:8px 10px;font-size:11px}
+  .workspace {padding:22px 16px 15px}
+  .welcome {margin:23px 0 20px}
+  .suggestions {grid-template-columns:1fr}
+  .model-info {align-items:flex-start}
+  .message {max-width:95%}
+  .admin-modal {padding:21px}
+}
+</style>
 </head>
 
 <body>
 <div class="app">
-
   <aside>
     <div class="brand">
       <div class="logo">y</div>
-      <div>
-        <strong>yunboy AI</strong>
-        <small>Personal AI workspace</small>
-      </div>
+      <div><strong>yunboy AI</strong><small>Personal AI workspace</small></div>
     </div>
 
     <button class="new-chat" id="newChat">＋　เริ่มแชทใหม่</button>
@@ -404,22 +263,23 @@
     </div>
 
     <div class="side-bottom">
-      yunboy AI · Prototype<br>
-      พื้นที่ทดลองใช้งานส่วนตัว
+      yunboy AI · Prototype<br>พื้นที่ทดลองใช้งานส่วนตัว
     </div>
   </aside>
 
   <main>
     <header>
       <div class="head-title">แชท AI</div>
-      <div class="status">
-        <span class="dot" id="statusDot"></span>
-        <span id="statusText">กำลังตรวจสอบ Backend</span>
+      <div class="header-right">
+        <div class="status">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">กำลังตรวจสอบ Backend</span>
+        </div>
+        <button class="admin-button" id="adminButton">Admin Login</button>
       </div>
     </header>
 
     <section class="workspace">
-
       <div class="welcome" id="welcome">
         <div class="eyebrow">YOUR AI WORKSPACE</div>
         <h1>วันนี้ให้ AI ช่วยอะไรดี?</h1>
@@ -428,321 +288,555 @@
 
       <div class="model-row">
         <span class="model-label">โมเดลที่ต้องการใช้</span>
-
-        <button class="model-btn selected" data-model="Qwen">
-          <span class="model-mark"></span> Qwen
-        </button>
-
-        <button class="model-btn" data-model="Gemma">
-          <span class="model-mark"></span> Gemma
-        </button>
-
-        <button class="model-btn" data-model="Claude Opus">
-          <span class="model-mark"></span> Claude Opus
-        </button>
+        <button class="model-btn selected" data-model="Qwen"><span class="model-mark"></span> Qwen</button>
+        <button class="model-btn" data-model="Gemma"><span class="model-mark"></span> Gemma</button>
+        <button class="model-btn" data-model="Claude Opus"><span class="model-mark"></span> Claude Opus</button>
       </div>
 
       <div class="model-info">
         <div>
           <strong id="modelTitle">Qwen · โมเดลที่เลือก</strong>
-          <p id="modelDescription">
-            โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ
-          </p>
+          <p id="modelDescription">โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ</p>
         </div>
         <span class="tag" id="modelTag">ยังไม่เชื่อม AI</span>
       </div>
 
       <div class="suggestions" id="suggestions">
-
-        <button class="suggestion"
-          data-prompt="ช่วยอธิบายบทเรียนนี้ให้เข้าใจง่าย พร้อมยกตัวอย่าง">
-          <b>📚 ช่วยเรื่องเรียน</b>
-          <span>อธิบายบทเรียนและทำสรุป</span>
+        <button class="suggestion" data-prompt="ช่วยอธิบายบทเรียนนี้ให้เข้าใจง่าย พร้อมยกตัวอย่าง">
+          <b>📚 ช่วยเรื่องเรียน</b><span>อธิบายบทเรียนและทำสรุป</span>
         </button>
-
-        <button class="suggestion"
-          data-prompt="ช่วยค้นคว้าหัวข้อนี้และจัดประเด็นสำคัญให้หน่อย">
-          <b>🔎 ค้นคว้าข้อมูล</b>
-          <span>วางโครงและจัดข้อมูลเป็นหัวข้อ</span>
+        <button class="suggestion" data-prompt="ช่วยค้นคว้าหัวข้อนี้และจัดประเด็นสำคัญให้หน่อย">
+          <b>🔎 ค้นคว้าข้อมูล</b><span>วางโครงและจัดข้อมูลเป็นหัวข้อ</span>
         </button>
-
-        <button class="suggestion"
-          data-prompt="ช่วยวางโครงงานนำเสนอ พร้อมหัวข้อแต่ละสไลด์">
-          <b>🖥️ ทำพรีเซนเทชัน</b>
-          <span>วางโครงสไลด์และเนื้อหา</span>
+        <button class="suggestion" data-prompt="ช่วยวางโครงงานนำเสนอ พร้อมหัวข้อแต่ละสไลด์">
+          <b>🖥️ ทำพรีเซนเทชัน</b><span>วางโครงสไลด์และเนื้อหา</span>
         </button>
-
-        <button class="suggestion"
-          data-prompt="ช่วยตรวจโค้ดนี้และอธิบายวิธีแก้ทีละขั้นตอน">
-          <b>⌨️ เขียนโค้ด</b>
-          <span>ช่วยตรวจและอธิบายโค้ด</span>
+        <button class="suggestion" data-prompt="ช่วยตรวจโค้ดนี้และอธิบายวิธีแก้ทีละขั้นตอน">
+          <b>⌨️ เขียนโค้ด</b><span>ช่วยตรวจและอธิบายโค้ด</span>
         </button>
-
       </div>
 
       <div class="chat" id="chat"></div>
 
       <div class="composer-wrap">
         <div class="composer">
-          <textarea
-            id="prompt"
-            rows="2"
-            placeholder="พิมพ์ข้อความถึง yunboy AI..."
-          ></textarea>
-
+          <textarea id="prompt" rows="2" placeholder="พิมพ์ข้อความถึง yunboy AI..."></textarea>
           <div class="composer-bottom">
             <span class="hint" id="sendHint">เชื่อมต่อ Backend ทดสอบแล้ว</span>
             <button class="send" id="sendButton">ส่งข้อความ　↑</button>
           </div>
         </div>
-
-        <div class="disclaimer">
-          ขณะนี้เชื่อมต่อ Backend ทดสอบแล้ว ยังไม่ได้เชื่อมต่อโมเดล AI จริง
-        </div>
+        <div class="disclaimer">ขณะนี้เชื่อมต่อ Backend ทดสอบแล้ว ยังไม่ได้เชื่อมต่อโมเดล AI จริง</div>
       </div>
-
     </section>
   </main>
 </div>
 
+<!-- ADMIN LOGIN MODAL -->
+<div class="modal-backdrop" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+  <div class="admin-modal">
+    <button class="modal-close" id="closeAdminModal" aria-label="ปิด">×</button>
+    <div class="modal-logo">y</div>
+
+    <section id="loginStep">
+      <h2 id="adminModalTitle">Admin Login</h2>
+      <p class="modal-description">เข้าสู่ระบบจัดการ yunboy AI</p>
+
+      <form id="loginForm">
+        <label class="form-label" for="adminEmail">อีเมล Admin</label>
+        <input class="form-input" id="adminEmail" type="email" autocomplete="username" required>
+
+        <label class="form-label" for="adminPassword">รหัสผ่าน</label>
+        <input class="form-input" id="adminPassword" type="password" autocomplete="current-password" required>
+
+        <button class="modal-primary" id="loginSubmit" type="submit">เข้าสู่ระบบ</button>
+      </form>
+    </section>
+
+    <section id="otpStep" hidden>
+      <h2>ยืนยันตัวตน</h2>
+      <p class="modal-description">กรอกรหัส OTP 6 หลักที่ส่งไปยังอีเมล Admin ของคุณ</p>
+
+      <form id="otpForm">
+        <label class="form-label" for="adminOTP">รหัส OTP</label>
+        <input class="form-input otp-input" id="adminOTP"
+          type="text" inputmode="numeric" autocomplete="one-time-code"
+          maxlength="6" pattern="[0-9]{6}" placeholder="000000" required>
+
+        <button class="modal-primary" id="otpSubmit" type="submit">ยืนยัน OTP</button>
+      </form>
+
+      <button class="modal-back-link" id="backToLogin">กลับไปหน้าเข้าสู่ระบบ</button>
+    </section>
+
+    <div class="modal-message" id="adminMessage" role="status" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div class="modal-backdrop" id="dashboardModal" role="dialog" aria-modal="true">
+  <div class="admin-dashboard">
+    <div class="dashboard-top">
+      <h2>Admin Dashboard</h2>
+      <span class="dashboard-tag">ADMIN VERIFIED</span>
+    </div>
+
+    <div class="dashboard-card">
+      <strong>สถานะบัญชี</strong>
+      <p>ยืนยันตัวตนสำเร็จและกำลังใช้งาน Admin Session</p>
+    </div>
+
+    <div class="dashboard-card">
+      <strong>อีเมล Admin</strong>
+      <p id="dashboardEmail">กำลังโหลด...</p>
+    </div>
+
+    <div class="dashboard-card">
+      <strong>ระบบ Backend</strong>
+      <p>เชื่อมต่อ yunboy AI Backend แล้ว</p>
+    </div>
+
+    <div class="dashboard-card">
+      <strong>เครื่องมือจัดการ</strong>
+      <p>หน้านี้เป็น Dashboard เริ่มต้น ระบบจัดการผู้ใช้ ไฟล์ และสถิติจะเพิ่มเมื่อมี API รองรับ</p>
+    </div>
+
+    <div class="dashboard-actions">
+      <button class="logout-button" id="logoutButton">ออกจากระบบ</button>
+      <button class="close-dashboard" id="closeDashboard">ปิดหน้าต่าง</button>
+    </div>
+
+    <div class="modal-message" id="dashboardMessage" role="status"></div>
+  </div>
+</div>
+
 <script>
-  const API_URL = "/api/index/chat";
+const API_URL = "/api/index/chat";
+const ADMIN_LOGIN_URL = "/api/index/admin/login";
+const ADMIN_VERIFY_URL = "/api/index/admin/verify-otp";
+const ADMIN_ME_URL = "/api/index/admin/me";
+const ADMIN_LOGOUT_URL = "/api/index/admin/logout";
 
-  const modelConfig = {
-    "Qwen": {
-      title: "Qwen · โมเดลที่เลือก",
-      description: "โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ",
-      tag: "ยังไม่เชื่อม AI"
-    },
-    "Gemma": {
-      title: "Gemma · โมเดลที่เลือก",
-      description: "โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ",
-      tag: "ยังไม่เชื่อม AI"
-    },
-    "Claude Opus": {
-      title: "Claude Opus · โมเดลที่เลือก",
-      description: "โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ",
-      tag: "ยังไม่เชื่อม AI"
-    }
-  };
-
-  let selectedModel = "Qwen";
-  let isSending = false;
-
-  const chat = document.getElementById("chat");
-  const promptBox = document.getElementById("prompt");
-  const sendButton = document.getElementById("sendButton");
-  const statusDot = document.getElementById("statusDot");
-  const statusText = document.getElementById("statusText");
-  const sendHint = document.getElementById("sendHint");
-
-  // แสดงสถานะ Backend
-  function setStatus(type, message) {
-    statusDot.className = "dot";
-
-    if (type === "online") {
-      statusDot.classList.add("online");
-    } else if (type === "error") {
-      statusDot.classList.add("error");
-    }
-
-    statusText.textContent = message;
+const modelConfig = {
+  "Qwen": {
+    title:"Qwen · โมเดลที่เลือก",
+    description:"โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ",
+    tag:"ยังไม่เชื่อม AI"
+  },
+  "Gemma": {
+    title:"Gemma · โมเดลที่เลือก",
+    description:"โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ",
+    tag:"ยังไม่เชื่อม AI"
+  },
+  "Claude Opus": {
+    title:"Claude Opus · โมเดลที่เลือก",
+    description:"โมเดลนี้ยังไม่ได้เชื่อมต่อ กำลังใช้ Backend ทดสอบการส่งข้อความ",
+    tag:"ยังไม่เชื่อม AI"
   }
+};
 
-  // เปลี่ยนโมเดลที่เลือก
-  document.querySelectorAll(".model-btn").forEach(button => {
-    button.addEventListener("click", () => {
-      selectedModel = button.dataset.model;
+let selectedModel = "Qwen";
+let isSending = false;
+let isAdmin = false;
 
-      document.querySelectorAll(".model-btn").forEach(item => {
-        item.classList.toggle("selected", item === button);
-      });
+const chat = document.getElementById("chat");
+const promptBox = document.getElementById("prompt");
+const sendButton = document.getElementById("sendButton");
+const statusDot = document.getElementById("statusDot");
+const statusText = document.getElementById("statusText");
+const sendHint = document.getElementById("sendHint");
 
-      const config = modelConfig[selectedModel];
+const adminModal = document.getElementById("adminModal");
+const dashboardModal = document.getElementById("dashboardModal");
+const adminButton = document.getElementById("adminButton");
+const adminMessage = document.getElementById("adminMessage");
+const dashboardMessage = document.getElementById("dashboardMessage");
 
-      document.getElementById("modelTitle").textContent = config.title;
-      document.getElementById("modelDescription").textContent = config.description;
-      document.getElementById("modelTag").textContent = config.tag;
-    });
-  });
+function setStatus(type, message) {
+  statusDot.className = "dot";
+  if (type === "online") statusDot.classList.add("online");
+  else if (type === "error") statusDot.classList.add("error");
+  statusText.textContent = message;
+}
 
-  // เพิ่มข้อความในแชท
-  function addMessage(role, text, options = {}) {
-    const bubble = document.createElement("div");
+function showMessage(element, message, type = "error") {
+  element.textContent = message;
+  element.className = "modal-message " + type;
+}
 
-    bubble.className = "message " + role;
+function clearMessage(element) {
+  element.textContent = "";
+  element.className = "modal-message";
+}
 
-    if (options.error) {
-      bubble.classList.add("error");
-    }
+function openAdminModal() {
+  clearMessage(adminMessage);
+  document.getElementById("loginStep").hidden = false;
+  document.getElementById("otpStep").hidden = true;
+  adminModal.classList.add("show");
+  setTimeout(() => document.getElementById("adminEmail").focus(), 50);
+}
 
-    const label = document.createElement("small");
+function closeAdminModal() {
+  adminModal.classList.remove("show");
+}
 
-    if (role === "user") {
-      label.textContent = "คุณ";
-    } else {
-      label.textContent = options.loading
-        ? "yunboy AI · กำลังประมวลผล"
-        : options.error
-          ? "ระบบแจ้งเตือน"
-          : "Backend · คำตอบทดสอบ";
-    }
+function openDashboard(email) {
+  document.getElementById("dashboardEmail").textContent = email || "Admin";
+  dashboardModal.classList.add("show");
+  adminButton.textContent = "Admin Dashboard";
+  adminButton.classList.add("logged");
+}
 
-    const content = document.createElement("div");
-    content.textContent = text;
+function closeDashboard() {
+  dashboardModal.classList.remove("show");
+}
 
-    bubble.append(label, content);
-    chat.appendChild(bubble);
-
-    bubble.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest"
-    });
-
-    return { bubble, label, content };
+async function readResponse(response) {
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("เซิร์ฟเวอร์ส่งข้อมูลกลับมาไม่ถูกต้อง");
   }
-
-  // ส่งข้อความไปยัง Backend
-  async function sendMessage() {
-    const text = promptBox.value.trim();
-
-    if (!text || isSending) return;
-
-    document.getElementById("welcome").style.display = "none";
-    document.getElementById("suggestions").style.display = "none";
-
-    addMessage("user", text);
-
-    promptBox.value = "";
-    isSending = true;
-
-    sendButton.disabled = true;
-    sendButton.textContent = "กำลังส่ง...";
-    sendHint.textContent = "กำลังติดต่อ Backend";
-
-    setStatus("loading", "กำลังส่งข้อความ");
-
-    const loadingMessage = addMessage(
-      "assistant",
-      "กำลังส่งข้อความไปยัง yunboy AI Backend...",
-      { loading: true }
-    );
-
-    try {
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: text
-        })
-      });
-
-      let data;
-
-      try {
-        data = await response.json();
-      } catch {
-        throw new Error("Backend ส่งข้อมูลกลับมาไม่ใช่ JSON");
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          data.detail || data.message || "Backend ตอบกลับด้วยสถานะ HTTP " + response.status
-        );
-      }
-
-      if (typeof data.reply !== "string") {
-        throw new Error("ไม่พบข้อมูล reply ในคำตอบจาก Backend");
-      }
-
-      loadingMessage.label.textContent = "Backend · คำตอบทดสอบ";
-      loadingMessage.content.textContent = data.reply;
-
-      setStatus("online", "Backend เชื่อมต่อแล้ว");
-      sendHint.textContent = "เชื่อมต่อ Backend สำเร็จ";
-
-    } catch (error) {
-      loadingMessage.bubble.classList.add("error");
-      loadingMessage.label.textContent = "ระบบแจ้งเตือน";
-      loadingMessage.content.textContent =
-        "ไม่สามารถส่งข้อความได้\n\nรายละเอียด: " +
-        error.message +
-        "\n\nลองตรวจสอบการ Deploy และการเชื่อมต่อ Backend อีกครั้ง";
-
-      setStatus("error", "Backend มีปัญหาในการเชื่อมต่อ");
-      sendHint.textContent = "ส่งข้อความไม่สำเร็จ";
-
-    } finally {
-      isSending = false;
-      sendButton.disabled = false;
-      sendButton.textContent = "ส่งข้อความ　↑";
-      promptBox.focus();
-    }
+  if (!response.ok) {
+    throw new Error(data.detail || data.message || "เกิดข้อผิดพลาด HTTP " + response.status);
   }
+  return data;
+}
 
-  // ปุ่มส่งข้อความ
-  sendButton.addEventListener("click", sendMessage);
-
-  // กด Enter เพื่อส่งข้อความ
-  promptBox.addEventListener("keydown", event => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      sendMessage();
-    }
-  });
-
-  // คำถามแนะนำ
-  document.querySelectorAll(".suggestion").forEach(button => {
-    button.addEventListener("click", () => {
-      promptBox.value = button.dataset.prompt;
-      promptBox.focus();
+/* MODEL SELECTOR */
+document.querySelectorAll(".model-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    selectedModel = button.dataset.model;
+    document.querySelectorAll(".model-btn").forEach(item => {
+      item.classList.toggle("selected", item === button);
     });
+    const config = modelConfig[selectedModel];
+    document.getElementById("modelTitle").textContent = config.title;
+    document.getElementById("modelDescription").textContent = config.description;
+    document.getElementById("modelTag").textContent = config.tag;
   });
+});
 
-  // เริ่มแชทใหม่
-  document.getElementById("newChat").addEventListener("click", () => {
-    if (isSending) return;
+/* CHAT MESSAGES */
+function addMessage(role, text, options = {}) {
+  const bubble = document.createElement("div");
+  bubble.className = "message " + role;
+  if (options.error) bubble.classList.add("error");
 
-    chat.innerHTML = "";
+  const label = document.createElement("small");
+  label.textContent = role === "user"
+    ? "คุณ"
+    : options.loading
+      ? "yunboy AI · กำลังประมวลผล"
+      : options.error
+        ? "ระบบแจ้งเตือน"
+        : "Backend · คำตอบทดสอบ";
 
-    document.getElementById("welcome").style.display = "";
-    document.getElementById("suggestions").style.display = "";
+  const content = document.createElement("div");
+  content.textContent = text;
+  bubble.append(label, content);
+  chat.appendChild(bubble);
+  bubble.scrollIntoView({behavior:"smooth",block:"nearest"});
+  return {bubble,label,content};
+}
 
-    promptBox.value = "";
-    sendHint.textContent = "พร้อมส่งข้อความ";
-    setStatus("online", "Backend พร้อมใช้งาน");
+/* SEND CHAT */
+async function sendMessage() {
+  const text = promptBox.value.trim();
+  if (!text || isSending) return;
 
+  document.getElementById("welcome").style.display = "none";
+  document.getElementById("suggestions").style.display = "none";
+  addMessage("user", text);
+
+  promptBox.value = "";
+  isSending = true;
+  sendButton.disabled = true;
+  sendButton.textContent = "กำลังส่ง...";
+  sendHint.textContent = "กำลังติดต่อ Backend";
+  setStatus("loading", "กำลังส่งข้อความ");
+
+  const loadingMessage = addMessage(
+    "assistant",
+    "กำลังส่งข้อความไปยัง yunboy AI Backend...",
+    {loading:true}
+  );
+
+  try {
+    const response = await fetch(API_URL, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message:text})
+    });
+    const data = await readResponse(response);
+
+    if (typeof data.reply !== "string") {
+      throw new Error("ไม่พบข้อมูล reply ในคำตอบจาก Backend");
+    }
+
+    loadingMessage.label.textContent = "Backend · คำตอบทดสอบ";
+    loadingMessage.content.textContent = data.reply;
+    setStatus("online", "Backend เชื่อมต่อแล้ว");
+    sendHint.textContent = "เชื่อมต่อ Backend สำเร็จ";
+
+  } catch (error) {
+    loadingMessage.bubble.classList.add("error");
+    loadingMessage.label.textContent = "ระบบแจ้งเตือน";
+    loadingMessage.content.textContent =
+      "ไม่สามารถส่งข้อความได้\n\nรายละเอียด: " + error.message;
+    setStatus("error", "Backend มีปัญหาในการเชื่อมต่อ");
+    sendHint.textContent = "ส่งข้อความไม่สำเร็จ";
+
+  } finally {
+    isSending = false;
+    sendButton.disabled = false;
+    sendButton.textContent = "ส่งข้อความ　↑";
+    promptBox.focus();
+  }
+}
+
+sendButton.addEventListener("click", sendMessage);
+
+promptBox.addEventListener("keydown", event => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    sendMessage();
+  }
+});
+
+/* SUGGESTIONS */
+document.querySelectorAll(".suggestion").forEach(button => {
+  button.addEventListener("click", () => {
+    promptBox.value = button.dataset.prompt;
     promptBox.focus();
   });
+});
 
-  // ตรวจสอบ Backend ตอนเปิดหน้าเว็บ
-  async function checkBackend() {
-    try {
-      const response = await fetch("/api/index");
+/* NEW CHAT */
+document.getElementById("newChat").addEventListener("click", () => {
+  if (isSending) return;
+  chat.innerHTML = "";
+  document.getElementById("welcome").style.display = "";
+  document.getElementById("suggestions").style.display = "";
+  promptBox.value = "";
+  sendHint.textContent = "พร้อมส่งข้อความ";
+  setStatus("online", "Backend พร้อมใช้งาน");
+  promptBox.focus();
+});
 
-      if (!response.ok) {
-        throw new Error("HTTP " + response.status);
-      }
+/* ADMIN BUTTON */
+adminButton.addEventListener("click", async () => {
+  if (isAdmin) {
+    openDashboard(document.getElementById("dashboardEmail").textContent);
+  } else {
+    openAdminModal();
+  }
+});
 
-      const data = await response.json();
+/* ADMIN LOGIN */
+document.getElementById("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  clearMessage(adminMessage);
 
-      if (data.status === "online") {
-        setStatus("online", "Backend ออนไลน์");
-        sendHint.textContent = "เชื่อมต่อ Backend สำเร็จ";
-      } else {
-        throw new Error("Backend ไม่ได้ส่งสถานะ online");
-      }
+  const email = document.getElementById("adminEmail").value.trim();
+  const password = document.getElementById("adminPassword").value;
+  const button = document.getElementById("loginSubmit");
 
-    } catch (error) {
-      setStatus("error", "ไม่สามารถตรวจสอบ Backend ได้");
-      sendHint.textContent = "โปรดตรวจสอบ Backend";
+  button.disabled = true;
+  button.textContent = "กำลังตรวจสอบ...";
+
+  try {
+    const response = await fetch(ADMIN_LOGIN_URL, {
+      method:"POST",
+      credentials:"include",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email,password})
+    });
+
+    const data = await readResponse(response);
+
+    if (data.status !== "otp_sent") {
+      throw new Error("ระบบยังไม่ได้ส่ง OTP");
     }
+
+    document.getElementById("loginStep").hidden = true;
+    document.getElementById("otpStep").hidden = false;
+    document.getElementById("adminPassword").value = "";
+    document.getElementById("adminOTP").value = "";
+
+    showMessage(
+      adminMessage,
+      "ส่ง OTP ไปยังอีเมลแล้ว กรุณาตรวจสอบอีเมลและกรอกรหัสภายใน 5 นาที",
+      "success"
+    );
+
+    document.getElementById("adminOTP").focus();
+
+  } catch (error) {
+    showMessage(adminMessage, error.message, "error");
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "เข้าสู่ระบบ";
+  }
+});
+
+/* OTP INPUT: DIGITS ONLY */
+document.getElementById("adminOTP").addEventListener("input", event => {
+  event.target.value = event.target.value.replace(/\D/g, "").slice(0,6);
+});
+
+/* VERIFY OTP */
+document.getElementById("otpForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  clearMessage(adminMessage);
+
+  const otp = document.getElementById("adminOTP").value;
+  if (!/^\d{6}$/.test(otp)) {
+    showMessage(adminMessage, "กรุณากรอก OTP ให้ครบ 6 หลัก", "error");
+    return;
   }
 
-  checkBackend();
-</script>
+  const button = document.getElementById("otpSubmit");
+  button.disabled = true;
+  button.textContent = "กำลังยืนยัน...";
 
+  try {
+    const response = await fetch(ADMIN_VERIFY_URL, {
+      method:"POST",
+      credentials:"include",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({otp})
+    });
+
+    const data = await readResponse(response);
+
+    if (data.status !== "authenticated" || !data.authenticated) {
+      throw new Error("ไม่สามารถยืนยัน Admin Session ได้");
+    }
+
+    isAdmin = true;
+    closeAdminModal();
+    openDashboard(data.email);
+
+  } catch (error) {
+    showMessage(adminMessage, error.message, "error");
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "ยืนยัน OTP";
+  }
+});
+
+/* BACK TO LOGIN */
+document.getElementById("backToLogin").addEventListener("click", () => {
+  document.getElementById("otpStep").hidden = true;
+  document.getElementById("loginStep").hidden = false;
+  document.getElementById("adminPassword").value = "";
+  document.getElementById("adminOTP").value = "";
+  clearMessage(adminMessage);
+});
+
+/* CLOSE MODALS */
+document.getElementById("closeAdminModal").addEventListener("click", closeAdminModal);
+document.getElementById("closeDashboard").addEventListener("click", closeDashboard);
+
+adminModal.addEventListener("click", event => {
+  if (event.target === adminModal) closeAdminModal();
+});
+dashboardModal.addEventListener("click", event => {
+  if (event.target === dashboardModal) closeDashboard();
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    closeAdminModal();
+    closeDashboard();
+  }
+});
+
+/* LOGOUT */
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  const button = document.getElementById("logoutButton");
+  button.disabled = true;
+  button.textContent = "กำลังออกจากระบบ...";
+
+  try {
+    const response = await fetch(ADMIN_LOGOUT_URL, {
+      method:"POST",
+      credentials:"include"
+    });
+
+    await readResponse(response);
+
+    isAdmin = false;
+    closeDashboard();
+    adminButton.textContent = "Admin Login";
+    adminButton.classList.remove("logged");
+    showMessage(dashboardMessage, "ออกจากระบบเรียบร้อยแล้ว", "success");
+
+  } catch (error) {
+    showMessage(dashboardMessage, "ออกจากระบบไม่สำเร็จ: " + error.message, "error");
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "ออกจากระบบ";
+  }
+});
+
+/* CHECK EXISTING ADMIN SESSION */
+async function checkAdminSession() {
+  try {
+    const response = await fetch(ADMIN_ME_URL, {
+      method:"GET",
+      credentials:"include"
+    });
+
+    if (!response.ok) {
+      isAdmin = false;
+      return;
+    }
+
+    const data = await response.json();
+
+    if (data.authenticated && data.role === "admin") {
+      isAdmin = true;
+      adminButton.textContent = "Admin Dashboard";
+      adminButton.classList.add("logged");
+      document.getElementById("dashboardEmail").textContent = data.email || "Admin";
+    }
+
+  } catch {
+    isAdmin = false;
+  }
+}
+
+/* CHECK BACKEND */
+async function checkBackend() {
+  try {
+    const response = await fetch("/api/index");
+    if (!response.ok) throw new Error("HTTP " + response.status);
+
+    const data = await response.json();
+
+    if (data.status === "online") {
+      setStatus("online", "Backend ออนไลน์");
+      sendHint.textContent = "เชื่อมต่อ Backend สำเร็จ";
+    } else {
+      throw new Error("Backend ไม่ได้ส่งสถานะ online");
+    }
+
+  } catch {
+    setStatus("error", "ไม่สามารถตรวจสอบ Backend ได้");
+    sendHint.textContent = "โปรดตรวจสอบ Backend";
+  }
+}
+
+/* INITIALIZE */
+checkBackend();
+checkAdminSession();
+</script>
 </body>
 </html>
